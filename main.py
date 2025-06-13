@@ -8,7 +8,7 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from slowapi.middleware import SlowAPIMiddleware
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import models, schemas, database, os
 
 app = FastAPI(title="IoT Device API")
@@ -88,7 +88,7 @@ def login(
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
     if not user or not pwd_context.verify(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    token_data = {"sub": user.email, "exp": datetime.utcnow() + timedelta(hours=1)}
+    token_data = {"sub": user.email, "exp": datetime.now(UTC) + timedelta(hours=1)}
     return {
         "access_token": jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM),
         "token_type": "bearer",
@@ -107,6 +107,7 @@ def create_device(
     db.add(db_device)
     db.commit()
     db.refresh(db_device)
+    print(db_device)
     return schemas.DeviceResponse.model_validate(db_device)
 
 
@@ -180,3 +181,8 @@ def get_current_user_info(
     db: Session = Depends(get_db), user=Depends(get_current_user)
 ):
     return schemas.UserResponse.model_validate(user)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
