@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Dict
+from typing import Optional, Literal, Dict
 from datetime import datetime
 
 class UserBase(BaseModel):
@@ -24,16 +24,17 @@ class DeviceCreate(DeviceBase):
 
 class DeviceResponse(DeviceBase):
     id: int
-    status: Dict
+    status: Literal['active', 'inactive', 'maintenance']
 
     class Config:
         from_attributes = True
 
 class DeviceStateUpdate(BaseModel):
-    status: Dict
+    status: Literal['active', 'inactive', 'maintenance']
 
 class TelemetryData(BaseModel):
     data: Dict
+    device_id: int
 
 class TelemetryResponse(BaseModel):
     id: int

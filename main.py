@@ -107,7 +107,8 @@ def create_device(
     db.add(db_device)
     db.commit()
     db.refresh(db_device)
-    print(db_device)
+    if not db_device:
+        raise HTTPException(status_code=500, detail="Device creation failed")
     return schemas.DeviceResponse.model_validate(db_device)
 
 

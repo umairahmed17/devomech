@@ -27,7 +27,9 @@ class Device(Base):
     name = Column(String, nullable=False)
     user_id = Column(Integer, ForeignKey(f'{SCHEMA}.users.id'))  # Schema-qualified
     location = Column(String)
-    status = Column(JSON)
+    status = Column(String, default='active')
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     owner = relationship("User", back_populates="devices")
     telemetries = relationship("Telemetry", back_populates="device")
@@ -40,6 +42,8 @@ class Telemetry(Base):
     device_id = Column(Integer, ForeignKey(f'{SCHEMA}.devices.id'))  # Schema-qualified
     timestamp = Column(DateTime, default=datetime.utcnow)
     data = Column(JSON)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     device = relationship("Device", back_populates="telemetries")
 
