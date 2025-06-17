@@ -44,6 +44,13 @@ async def get_current_user(
             raise HTTPException(
                 status_code=401, detail="Invalid authentication credentials"
             )
+        if "exp" not in payload:
+            raise HTTPException(
+                status_code=401, detail="Token does not contain expiration time"
+            )
+        now = datetime.now(UTC)
+        if "exp" in payload and datetime.fromtimestamp(payload["exp"], UTC) < now:
+            raise HTTPException(status_code=401, detail="Token has expired")
     except JWTError:
         raise HTTPException(
             status_code=401, detail="Invalid authentication credentials"
